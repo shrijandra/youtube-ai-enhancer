@@ -1,0 +1,35 @@
+
+
+Backend
+Create virtual environment
+
+python -m venv venv
+
+Activate
+
+Windows
+
+venv\\Scripts\\activate
+
+Linux
+
+source venv/bin/activate
+
+run
+uvicorn app.main:app --reload
+
+http://localhost:8000
+
+{
+  "message":"AI Audio Enhancer API"
+}
+
+Frontend
+
+PS C:\Users\shrijandra\youtube-ai-enhancer\frontend> node -v
+v24.18.0
+PS C:\Users\shrijandra\youtube-ai-enhancer\frontend> npm -v
+11.16.0
+
+npm run dev
+http://localhost:5173
