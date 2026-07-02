@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import FileInfo from "./FileInfo";
 
 interface UploadedFile {
   name: string;
@@ -60,26 +61,11 @@ export default function UploadCard() {
         </div>
 
         {file && (
-          <div className="mt-8 rounded-lg bg-slate-800 p-6 text-left">
-
-            <h3 className="mb-4 text-xl font-bold">
-              Selected File
-            </h3>
-
-            <p>
-              <strong>Name:</strong> {file.name}
-            </p>
-
-            <p>
-              <strong>Type:</strong> {file.type}
-            </p>
-
-            <p>
-              <strong>Size:</strong>{" "}
-              {(file.size / 1024 / 1024).toFixed(2)} MB
-            </p>
-
-          </div>
+          <FileInfo
+            name={file.name}
+            size={file.size}
+            type={file.type}
+  />
         )}
 
       </CardContent>
