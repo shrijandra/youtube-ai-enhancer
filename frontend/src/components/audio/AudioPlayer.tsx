@@ -1,3 +1,5 @@
+import Waveform from "./Waveform";
+
 interface AudioPlayerProps {
   src: string;
 }
@@ -5,9 +7,13 @@ interface AudioPlayerProps {
 export default function AudioPlayer({ src }: AudioPlayerProps) {
   return (
     <div className="mt-6">
-      <audio controls className="w-full rounded-lg">
+      <Waveform audioUrl={src} />
+
+      <audio
+        controls
+        className="mt-4 w-full"
+      >
         <source src={src} />
-        Your browser does not support audio playback.
       </audio>
     </div>
   );
