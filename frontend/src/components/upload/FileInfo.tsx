@@ -1,13 +1,18 @@
+import AudioPlayer from "../audio/AudioPlayer";
+import VideoPlayer from "../video/VideoPlayer";
+
 interface FileInfoProps {
   name: string;
   size: number;
   type: string;
+  previewUrl: string;
 }
 
 export default function FileInfo({
   name,
   size,
   type,
+  previewUrl,
 }: FileInfoProps) {
   const isVideo = type.startsWith("video");
 
@@ -68,7 +73,11 @@ export default function FileInfo({
 
           <p>
 
-            {isVideo ? "Video" : "Audio"}
+            {isVideo ? (
+              <VideoPlayer src={previewUrl} />
+            ) : (
+              <AudioPlayer src={previewUrl} />
+            )}
 
           </p>
 

@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import FileInfo from "./FileInfo";
 
 interface UploadedFile {
+  file: File;
   name: string;
   size: number;
   type: string;
+  previewUrl: string;
+
 }
 
 export default function UploadCard() {
@@ -20,9 +23,11 @@ export default function UploadCard() {
     const selected = acceptedFiles[0];
 
     setFile({
+      file: selected,
       name: selected.name,
       size: selected.size,
       type: selected.type,
+      previewUrl: URL.createObjectURL(selected),
     });
   }, []);
 
@@ -65,6 +70,7 @@ export default function UploadCard() {
             name={file.name}
             size={file.size}
             type={file.type}
+            previewUrl={file.previewUrl}
   />
         )}
 
