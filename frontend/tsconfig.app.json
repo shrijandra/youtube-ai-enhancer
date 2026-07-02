@@ -20,7 +20,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /*added new line */
+    
+    "paths": {
+    "@/*": ["./src/*"]
+     }
   },
   "include": ["src"]
 }
