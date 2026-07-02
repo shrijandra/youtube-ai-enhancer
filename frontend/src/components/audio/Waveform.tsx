@@ -3,15 +3,19 @@ import WaveSurfer from "wavesurfer.js";
 
 interface WaveformProps {
   audioUrl: string;
+  onReady?: (waveSurfer: WaveSurfer) => void;
 }
 
-export default function Waveform({ audioUrl }: WaveformProps) {
+export default function Waveform({
+  audioUrl,
+  onReady,
+}: WaveformProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const wavesurfer = WaveSurfer.create({
+    const ws = WaveSurfer.create({
       container: containerRef.current,
 
       height: 120,
@@ -29,15 +33,19 @@ export default function Waveform({ audioUrl }: WaveformProps) {
       barRadius: 4,
     });
 
-    wavesurfer.load(audioUrl);
+    ws.load(audioUrl);
+
+    ws.on("ready", () => {
+      onReady?.(ws);
+    });
 
     return () => {
-      wavesurfer.destroy();
+      ws.destroy();
     };
   }, [audioUrl]);
 
   return (
-    <div className="mt-6 rounded-xl border border-slate-700 bg-slate-950 p-4">
+    <div className="rounded-xl border border-slate-700 bg-slate-950 p-4">
       <div ref={containerRef} />
     </div>
   );
