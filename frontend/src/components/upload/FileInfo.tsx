@@ -1,5 +1,6 @@
 import AudioPlayer from "../audio/AudioPlayer";
 import VideoPlayer from "../video/VideoPlayer";
+import EnhancementPanel from "../enhancement/EnhancementPanel";
 
 interface FileInfoProps {
   name: string;
@@ -76,8 +77,14 @@ export default function FileInfo({
             {isVideo ? (
               <VideoPlayer src={previewUrl} />
             ) : (
+             // <AudioPlayer src={previewUrl} />
+              <>
               <AudioPlayer src={previewUrl} />
+              <EnhancementPanel />
+              </>
+              
             )}
+          
 
           </p>
 
