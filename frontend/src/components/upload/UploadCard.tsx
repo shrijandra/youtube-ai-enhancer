@@ -67,6 +67,7 @@ export default function UploadCard() {
 
         {file && (
           <FileInfo
+            file={file.file}
             name={file.name}
             size={file.size}
             type={file.type}

@@ -1,8 +1,9 @@
 import { useState } from "react";
-
+import { uploadFile } from "@/services/uploadService";
 import ParameterSlider from "./ParameterSlider";
 import PresetSelector from "./PresetSelector";
 import EnhanceButton from "./EnhanceButton";
+
 
 interface EnhancementSettings {
   noiseReduction: number;
@@ -10,6 +11,11 @@ interface EnhancementSettings {
   echoRemoval: number;
   loudness: number;
 }
+
+interface Props {
+    file: File;
+}
+
 const presets = {
   Balanced: {
     noiseReduction: 80,
@@ -47,7 +53,9 @@ const presets = {
   },
 };
 //Initialize the state:
-export default function EnhancementPanel() {
+export default function EnhancementPanel({
+  file,
+}: Props) {
   const [settings, setSettings] = useState<EnhancementSettings>(
     presets.Balanced
   );
@@ -63,6 +71,28 @@ export default function EnhancementPanel() {
       [key]: value,
     }));
   };
+  const [uploading, setUploading] = useState(false);
+  //const [uploadedFileId, setUploadedFileId] = useState("");
+
+  const handleEnhance = async () => {
+  try {
+    setUploading(true);
+
+    const result = await uploadFile(file);
+
+    console.log(result);
+
+    //setUploadedFileId(result.filename);
+
+    alert("✅ Upload successful!");
+  } catch (error) {
+    console.error(error);
+    alert("❌ Upload failed.");
+  } finally {
+    setUploading(false);
+  }
+  };
+   
 //Render
   return (
     <div className="mt-8 rounded-xl border border-slate-700 bg-slate-950 p-6">
@@ -113,9 +143,8 @@ export default function EnhancementPanel() {
        />
 
       <EnhanceButton
-        onClick={() => {
-          console.log(settings, preset);
-        }}
+        onClick={handleEnhance}
+        uploading={uploading}
       />
     </div>
   );

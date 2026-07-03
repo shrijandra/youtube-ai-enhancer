@@ -3,6 +3,7 @@ import VideoPlayer from "../video/VideoPlayer";
 import EnhancementPanel from "../enhancement/EnhancementPanel";
 
 interface FileInfoProps {
+  file: File;
   name: string;
   size: number;
   type: string;
@@ -80,7 +81,7 @@ export default function FileInfo({
              // <AudioPlayer src={previewUrl} />
               <>
               <AudioPlayer src={previewUrl} />
-              <EnhancementPanel />
+              <EnhancementPanel file={file} />
               </>
               
             )}
