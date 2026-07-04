@@ -1,7 +1,9 @@
 from fastapi import FastAPI
-from app.api.process import router as process_router
-from app.api.upload import router as upload_router
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.upload import router as upload_router
+from app.api.process import router as process_router
+
 app = FastAPI(
     title="AI Creator Studio API",
     version="1.0.0",
@@ -19,18 +21,12 @@ app.add_middleware(
 )
 
 app.include_router(upload_router)
-
 app.include_router(process_router)
 
 @app.get("/")
 def root():
-    return {
-        "message": "AI Creator Studio Backend Running"
-    }
-
+    return {"message": "AI Creator Studio Backend Running"}
 
 @app.get("/health")
 def health():
-    return {
-        "status": "healthy"
-    }
+    return {"status": "healthy"}

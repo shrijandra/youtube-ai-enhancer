@@ -5,6 +5,9 @@ import PresetSelector from "./PresetSelector";
 import EnhanceButton from "./EnhanceButton";
 import { processFile } from "@/services/processService";
 
+
+
+
 interface EnhancementSettings {
   noiseReduction: number;
   voiceClarity: number;
@@ -61,6 +64,8 @@ export default function EnhancementPanel({
   );
 
   const [preset, setPreset] = useState("Balanced");
+  
+  const [processedAudioUrl, setProcessedAudioUrl] = useState("");
 //Update function
   const updateSetting = (
     key: keyof EnhancementSettings,
@@ -85,6 +90,8 @@ export default function EnhancementPanel({
     const processResult = await processFile(uploadResult.filename);
 
     console.log("Process result:", processResult);
+    // Save the URL returned by FastAPI
+    setProcessedAudioUrl(processResult.download_url);
 
     alert("✅ Audio extracted successfully!");
   } catch (error: any) {
@@ -153,6 +160,28 @@ export default function EnhancementPanel({
         onClick={handleEnhance}
         uploading={uploading}
       />
+      {processedAudioUrl && (
+  <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-4">
+    <h3 className="mb-3 font-semibold">
+      Processed Audio
+    </h3>
+
+    <audio
+      controls
+      src={processedAudioUrl}
+      className="w-full"
+    />
+
+    <a
+      href={processedAudioUrl}
+      download
+      className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+    >
+      Download WAV
+    </a>
+  </div>
+    )}
     </div>
+      
   );
 }
