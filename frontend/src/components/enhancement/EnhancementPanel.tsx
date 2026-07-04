@@ -3,7 +3,7 @@ import { uploadFile } from "@/services/uploadService";
 import ParameterSlider from "./ParameterSlider";
 import PresetSelector from "./PresetSelector";
 import EnhanceButton from "./EnhanceButton";
-
+import { processFile } from "@/services/processService";
 
 interface EnhancementSettings {
   noiseReduction: number;
@@ -78,20 +78,27 @@ export default function EnhancementPanel({
   try {
     setUploading(true);
 
-    const result = await uploadFile(file);
+    const uploadResult = await uploadFile(file);
 
-    console.log(result);
+    console.log("Upload result:", uploadResult);
 
-    //setUploadedFileId(result.filename);
+    const processResult = await processFile(uploadResult.filename);
 
-    alert("✅ Upload successful!");
-  } catch (error) {
-    console.error(error);
-    alert("❌ Upload failed.");
+    console.log("Process result:", processResult);
+
+    alert("✅ Audio extracted successfully!");
+  } catch (error: any) {
+  console.error("Processing error:", error);
+
+  alert(
+    error?.response?.data?.detail ||
+    error?.message ||
+    "❌ Processing failed."
+  );
   } finally {
     setUploading(false);
   }
-  };
+};
    
 //Render
   return (

@@ -11,6 +11,7 @@ interface FileInfoProps {
 }
 
 export default function FileInfo({
+  file,
   name,
   size,
   type,

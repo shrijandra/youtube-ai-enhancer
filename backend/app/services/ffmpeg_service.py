@@ -10,15 +10,16 @@ def extract_audio_to_wav(input_path: str, output_dir: str = "outputs") -> str:
     output_file = output_folder / f"{input_file.stem}.wav"
 
     try:
+        stream = ffmpeg.input(str(input_file))
+
         (
             ffmpeg
-            .input(str(input_file))
             .output(
+                stream.audio,
                 str(output_file),
                 acodec="pcm_s16le",
                 ac=1,
                 ar="48000",
-                vn=None
             )
             .overwrite_output()
             .run(capture_stdout=True, capture_stderr=True)
