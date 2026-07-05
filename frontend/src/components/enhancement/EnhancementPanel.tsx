@@ -4,7 +4,7 @@ import ParameterSlider from "./ParameterSlider";
 import PresetSelector from "./PresetSelector";
 import EnhanceButton from "./EnhanceButton";
 import { processFile } from "@/services/processService";
-
+import { processVideo } from "@/services/videoService";
 
 
 
@@ -65,7 +65,8 @@ export default function EnhancementPanel({
 
   const [preset, setPreset] = useState("Balanced");
   
-  const [processedAudioUrl, setProcessedAudioUrl] = useState("");
+  //const [processedAudioUrl, setProcessedAudioUrl] = useState("");
+  const [processedMediaUrl, setProcessedMediaUrl] = useState("");
 //Update function
   const updateSetting = (
     key: keyof EnhancementSettings,
@@ -87,12 +88,20 @@ export default function EnhancementPanel({
 
     console.log("Upload result:", uploadResult);
 
-    const processResult = await processFile(uploadResult.filename);
+    //const processResult = await processFile(uploadResult.filename);
+    const isVideo = file.type.startsWith("video/");
 
+    let processResult;
+
+    if (isVideo) {
+      processResult = await processVideo(uploadResult.filename);
+    } else {
+      processResult = await processFile(uploadResult.filename);
+    }
     console.log("Process result:", processResult);
     // Save the URL returned by FastAPI
-    setProcessedAudioUrl(processResult.download_url);
-
+   // setProcessedAudioUrl(processResult.download_url);
+    setProcessedMediaUrl(processResult.download_url);
     alert("✅ Audio extracted successfully!");
   } catch (error: any) {
   console.error("Processing error:", error);
@@ -160,27 +169,35 @@ export default function EnhancementPanel({
         onClick={handleEnhance}
         uploading={uploading}
       />
-      {processedAudioUrl && (
-  <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-4">
-    <h3 className="mb-3 font-semibold">
-      Processed Audio
+      {processedMediaUrl && (
+  <div className="mt-6 rounded-xl border p-4">
+    <h3 className="font-semibold mb-3">
+      Processed {file.type.startsWith("video/") ? "Video" : "Audio"}
     </h3>
 
-    <audio
-      controls
-      src={processedAudioUrl}
-      className="w-full"
-    />
+    {file.type.startsWith("video/") ? (
+      <video
+        controls
+        src={processedMediaUrl}
+        className="w-full rounded-lg"
+      />
+    ) : (
+      <audio
+        controls
+        src={processedMediaUrl}
+        className="w-full"
+      />
+    )}
 
     <a
-      href={processedAudioUrl}
+      href={processedMediaUrl}
       download
-      className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+      className="inline-block mt-4 rounded-lg bg-primary px-4 py-2 text-primary-foreground"
     >
-      Download WAV
+      Download {file.type.startsWith("video/") ? "MP4" : "WAV"}
     </a>
   </div>
-    )}
+  )}
     </div>
       
   );

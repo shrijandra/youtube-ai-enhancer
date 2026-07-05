@@ -5,6 +5,8 @@ from fastapi import APIRouter, HTTPException
 from app.services.ffmpeg_service import extract_audio_to_wav
 from fastapi.responses import FileResponse
 
+from app.services.video_service import enhance_video
+
 router = APIRouter()
 
 UPLOAD_DIR = Path("uploads")
@@ -46,7 +48,34 @@ def process_file(filename: str):
             "input_file": filename,
             "wav_file": output_filename,
             "download_url": f"http://localhost:8000/outputs/{output_filename}",
-}
+        }
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e),
+        )
+@router.post("/process-video/{filename}")
+def process_video(filename: str):
+    input_path = UPLOAD_DIR / filename
+
+    if not input_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Uploaded video not found",
+        )
+
+    try:
+        video_path = enhance_video(str(input_path))
+        output_filename = Path(video_path).name
+
+        return {
+            "message": "Video enhanced successfully",
+            "input_file": filename,
+            "output_file": output_filename,
+            "download_url": f"http://localhost:8000/outputs/{output_filename}",
+            "media_type": "video",
+        }
 
     except Exception as e:
         raise HTTPException(

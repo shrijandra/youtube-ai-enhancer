@@ -4,6 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import FileInfo from "./FileInfo";
+import EnhancementPanel from "@/components/enhancement/EnhancementPanel";
 
 interface UploadedFile {
   file: File;
@@ -66,6 +67,7 @@ export default function UploadCard() {
         </div>
 
         {file && (
+          <>
           <FileInfo
             file={file.file}
             name={file.name}
@@ -73,6 +75,8 @@ export default function UploadCard() {
             type={file.type}
             previewUrl={file.previewUrl}
   />
+          <EnhancementPanel file={file.file} />
+          </>
         )}
 
       </CardContent>
