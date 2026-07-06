@@ -1,16 +1,13 @@
 from pathlib import Path
-
 from fastapi import APIRouter, HTTPException
-
-from app.services.ffmpeg_service import extract_audio_to_wav
 from fastapi.responses import FileResponse
 
-from app.services.video_service import enhance_video
-
+from app.core.config import UPLOAD_DIR, OUTPUT_DIR
+from app.models.schemas import ProcessRequest
+from app.services.media_service import process_media
+import time
 router = APIRouter()
 
-UPLOAD_DIR = Path("uploads")
-OUTPUT_DIR = Path("outputs")
 
 @router.get("/outputs/{filename}")
 def download_output(filename: str):
@@ -22,15 +19,24 @@ def download_output(filename: str):
             detail="File not found",
         )
 
+    media_type = "application/octet-stream"
+
+    if file_path.suffix.lower() == ".wav":
+        media_type = "audio/wav"
+
+    if file_path.suffix.lower() == ".mp4":
+        media_type = "video/mp4"
+
     return FileResponse(
         path=file_path,
-        media_type="audio/wav",
+        media_type=media_type,
         filename=filename,
     )
 
-@router.post("/process/{filename}")
-def process_file(filename: str):
-    input_path = UPLOAD_DIR / filename
+
+@router.post("/process")
+def process_file(request: ProcessRequest):
+    input_path = UPLOAD_DIR / request.filename
 
     if not input_path.exists():
         raise HTTPException(
@@ -38,46 +44,50 @@ def process_file(filename: str):
             detail="Uploaded file not found",
         )
 
-    try:
-        wav_path = extract_audio_to_wav(str(input_path))
+    print("\n" + "=" * 70)
+    print("🚀 AI Creator Studio V2 - Processing Started")
+    print(f"Input File : {request.filename}")
+    print(f"Settings   : {request.settings.model_dump()}")
+    print("=" * 70)
 
-        output_filename = Path(wav_path).name
-
-        return {
-            "message": "Audio extracted successfully",
-            "input_file": filename,
-            "wav_file": output_filename,
-            "download_url": f"http://localhost:8000/outputs/{output_filename}",
-        }
-    
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e),
-        )
-@router.post("/process-video/{filename}")
-def process_video(filename: str):
-    input_path = UPLOAD_DIR / filename
-
-    if not input_path.exists():
-        raise HTTPException(
-            status_code=404,
-            detail="Uploaded video not found",
-        )
+    start = time.time()
 
     try:
-        video_path = enhance_video(str(input_path))
-        output_filename = Path(video_path).name
+        output_path = process_media(
+            input_file=input_path,
+            settings=request.settings,
+        )
+
+        elapsed = round(time.time() - start, 2)
+
+        output_filename = Path(output_path).name
+
+        media_type = (
+            "video"
+            if output_path.suffix.lower() == ".mp4"
+            else "audio"
+        )
+
+        print("✅ Processing Complete")
+        print(f"Output File : {output_filename}")
+        print(f"Media Type  : {media_type}")
+        print(f"Elapsed     : {elapsed} sec")
+        print("=" * 70 + "\n")
 
         return {
-            "message": "Video enhanced successfully",
-            "input_file": filename,
+            "message": "Media processed successfully",
+            "input_file": request.filename,
             "output_file": output_filename,
             "download_url": f"http://localhost:8000/outputs/{output_filename}",
-            "media_type": "video",
+            "media_type": media_type,
+            "processing_time": elapsed,
         }
 
     except Exception as e:
+        print("❌ Processing Failed")
+        print(str(e))
+        print("=" * 70 + "\n")
+
         raise HTTPException(
             status_code=500,
             detail=str(e),

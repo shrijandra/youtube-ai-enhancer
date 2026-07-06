@@ -3,11 +3,12 @@ import shutil
 from uuid import uuid4
 
 from fastapi import APIRouter, File, UploadFile, HTTPException
+from app.core.config import UPLOAD_DIR
 
 router = APIRouter()
 
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
+'''UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)'''
 
 
 ALLOWED_EXTENSIONS = {

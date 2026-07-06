@@ -3,9 +3,8 @@ import { uploadFile } from "@/services/uploadService";
 import ParameterSlider from "./ParameterSlider";
 import PresetSelector from "./PresetSelector";
 import EnhanceButton from "./EnhanceButton";
-import { processFile } from "@/services/processService";
-import { processVideo } from "@/services/videoService";
 
+import { processMedia } from "@/services/processService";
 
 
 interface EnhancementSettings {
@@ -88,21 +87,16 @@ export default function EnhancementPanel({
 
     console.log("Upload result:", uploadResult);
 
-    //const processResult = await processFile(uploadResult.filename);
-    const isVideo = file.type.startsWith("video/");
+    const processResult = await processMedia(
+      uploadResult.filename,
+      settings
+      );
 
-    let processResult;
-
-    if (isVideo) {
-      processResult = await processVideo(uploadResult.filename);
-    } else {
-      processResult = await processFile(uploadResult.filename);
-    }
     console.log("Process result:", processResult);
     // Save the URL returned by FastAPI
    // setProcessedAudioUrl(processResult.download_url);
     setProcessedMediaUrl(processResult.download_url);
-    alert("✅ Audio extracted successfully!");
+    alert(`✅ ${file.type.startsWith("video/") ? "Video" : "Audio"} enhanced successfully!`);
   } catch (error: any) {
   console.error("Processing error:", error);
 
