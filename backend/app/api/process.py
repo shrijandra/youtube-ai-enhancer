@@ -6,8 +6,30 @@ from app.core.config import UPLOAD_DIR, OUTPUT_DIR
 from app.models.schemas import ProcessRequest
 from app.services.media_service import process_media
 import time
+from app.services.audio_analysis_service import analyze_audio
 router = APIRouter()
 
+@router.get("/analyze/{filename}")
+def analyze_file(filename: str):
+    input_path = OUTPUT_DIR / filename
+
+    if not input_path.exists():
+        input_path = UPLOAD_DIR / filename
+
+    if not input_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="File not found",
+        )
+
+    try:
+        return analyze_audio(input_path)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e),
+        )
 
 @router.get("/outputs/{filename}")
 def download_output(filename: str):

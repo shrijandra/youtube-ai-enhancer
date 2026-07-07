@@ -5,6 +5,8 @@ import PresetSelector from "./PresetSelector";
 import EnhanceButton from "./EnhanceButton";
 
 import { processMedia } from "@/services/processService";
+import { analyzeMedia } from "@/services/analysisService";
+ 
 
 
 interface EnhancementSettings {
@@ -66,6 +68,7 @@ export default function EnhancementPanel({
   
   //const [processedAudioUrl, setProcessedAudioUrl] = useState("");
   const [processedMediaUrl, setProcessedMediaUrl] = useState("");
+  const [analysis, setAnalysis] = useState<any>(null);
 //Update function
   const updateSetting = (
     key: keyof EnhancementSettings,
@@ -96,6 +99,14 @@ export default function EnhancementPanel({
     // Save the URL returned by FastAPI
    // setProcessedAudioUrl(processResult.download_url);
     setProcessedMediaUrl(processResult.download_url);
+
+     // Analyze the processed media
+    const analysisResult = await analyzeMedia(processResult.output_file);
+
+    console.log("Analysis:", analysisResult);
+
+    setAnalysis(analysisResult);
+
     alert(`✅ ${file.type.startsWith("video/") ? "Video" : "Audio"} enhanced successfully!`);
   } catch (error: any) {
   console.error("Processing error:", error);
