@@ -33,3 +33,12 @@ PS C:\Users\shrijandra\youtube-ai-enhancer\frontend> npm -v
 
 npm run dev
 http://localhost:5173
+
+to increase timeout
+src/services/api.ts
+
+for 2minutes
+const api = axios.create({
+  baseURL: "http://localhost:8000",
+  timeout: 120000,
+});

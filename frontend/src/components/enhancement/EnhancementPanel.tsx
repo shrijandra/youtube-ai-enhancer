@@ -7,7 +7,7 @@ import EnhanceButton from "./EnhanceButton";
 import { processMedia } from "@/services/processService";
 import { analyzeMedia } from "@/services/analysisService";
  
-
+import AIRecommendations from "@/components/analysis/AIRecommendations";
 
 interface EnhancementSettings {
   noiseReduction: number;
@@ -210,6 +210,7 @@ export default function EnhancementPanel({
        Audio Analysis Dashboard
     =========================== */}
     {analysis && (
+   <>    
   <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-5 text-left">
     <h3 className="mb-4 text-xl font-semibold">
       📊 Audio Analysis
@@ -259,6 +260,12 @@ export default function EnhancementPanel({
       </div>
     </div>
   </div>
+    
+    {/* ==========================
+        AI Recommendations
+    =========================== */}
+    <AIRecommendations analysis={analysis} />
+  </>
    )}
     </div>
       
