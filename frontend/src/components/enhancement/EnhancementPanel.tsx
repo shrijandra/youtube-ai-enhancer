@@ -9,7 +9,7 @@ import { analyzeMedia } from "@/services/analysisService";
  
 import AIRecommendations from "@/components/analysis/AIRecommendations";
 import AudioAnalysisDashboard from "@/components/analysis/AudioAnalysisDashboard";
-
+import BeforeAfterComparison from "@/components/analysis/BeforeAfterComparison";
 interface EnhancementSettings {
   noiseReduction: number;
   voiceClarity: number;
@@ -69,7 +69,9 @@ export default function EnhancementPanel({
   
   //const [processedAudioUrl, setProcessedAudioUrl] = useState("");
   const [processedMediaUrl, setProcessedMediaUrl] = useState("");
-  const [analysis, setAnalysis] = useState<any>(null);
+ // const [analysis, setAnalysis] = useState<any>(null);
+  const [beforeAnalysis, setBeforeAnalysis] = useState<any>(null);
+  const [afterAnalysis, setAfterAnalysis] = useState<any>(null);
 //Update function
   const updateSetting = (
     key: keyof EnhancementSettings,
@@ -91,22 +93,25 @@ export default function EnhancementPanel({
 
     console.log("Upload result:", uploadResult);
 
+
+     // Analyze original uploaded media
+    const originalAnalysis = await analyzeMedia(uploadResult.filename);
+    console.log("Before Analysis:", originalAnalysis);
+    setBeforeAnalysis(originalAnalysis);
+
     const processResult = await processMedia(
       uploadResult.filename,
       settings
-      );
+    );
 
     console.log("Process result:", processResult);
-    // Save the URL returned by FastAPI
-   // setProcessedAudioUrl(processResult.download_url);
+
     setProcessedMediaUrl(processResult.download_url);
 
-     // Analyze the processed media
-    const analysisResult = await analyzeMedia(processResult.output_file);
-
-    console.log("Analysis:", analysisResult);
-
-    setAnalysis(analysisResult);
+// Analyze enhanced output
+    const enhancedAnalysis = await analyzeMedia(processResult.output_file);
+    console.log("After Analysis:", enhancedAnalysis);
+    setAfterAnalysis(enhancedAnalysis);
 
     alert(`✅ ${file.type.startsWith("video/") ? "Video" : "Audio"} enhanced successfully!`);
   } catch (error: any) {
@@ -210,12 +215,19 @@ export default function EnhancementPanel({
     {/* ==========================
        Audio Analysis Dashboard
     =========================== */}
-  {analysis && (
+  {afterAnalysis && (
   <>
-    <AudioAnalysisDashboard analysis={analysis} />
-    <AIRecommendations analysis={analysis} />
+    <AudioAnalysisDashboard analysis={afterAnalysis} />
+    <AIRecommendations analysis={afterAnalysis} />
   </>
-   )}
+ )}
+
+  {beforeAnalysis && afterAnalysis && (
+  <BeforeAfterComparison
+    before={beforeAnalysis}
+    after={afterAnalysis}
+  />
+  )}
     </div>
       
   );
