@@ -12,7 +12,7 @@ export default function AIRecommendations({ analysis }: AIRecommendationsProps) 
   }
 
   if (analysis.true_peak_dbfs > -1) {
-    recommendations.push("Peak is too close to clipping. Lower limiter or output gain.");
+    recommendations.push("Peak is too close to clipping. Lower output gain.");
   } else {
     recommendations.push("Peak level is safe.");
   }
@@ -38,21 +38,29 @@ export default function AIRecommendations({ analysis }: AIRecommendationsProps) 
   const finalScore = Math.max(0, Math.min(100, Math.round(score)));
 
   return (
-    <div className="mt-6 rounded-xl border border-slate-700 bg-slate-950 p-5 text-left">
-      <h3 className="mb-3 text-xl font-semibold">
+    <div className="mt-6 rounded-2xl border border-indigo-700/60 bg-indigo-950/40 p-6 text-left shadow-lg">
+      <h3 className="mb-5 text-xl font-bold text-white">
         🤖 AI Recommendations
       </h3>
 
-      <div className="mb-4">
+      <div className="mb-5 rounded-xl border border-indigo-700/60 bg-slate-950 p-5">
         <p className="text-sm text-slate-400">Creator Audio Score</p>
-        <p className="text-4xl font-bold">{finalScore}/100</p>
+        <p className="mt-2 text-4xl font-bold text-white">
+          {finalScore}
+          <span className="text-xl text-slate-400">/100</span>
+        </p>
       </div>
 
-      <ul className="space-y-2 text-sm text-slate-300">
+      <div className="space-y-3">
         {recommendations.map((item, index) => (
-          <li key={index}>• {item}</li>
+          <div
+            key={index}
+            className="rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-slate-200"
+          >
+            ✅ {item}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

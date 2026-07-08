@@ -42,3 +42,6 @@ const api = axios.create({
   baseURL: "http://localhost:8000",
   timeout: 120000,
 });
+
+while doing git push
+make sure to clean up upload and output folder and temp folder that contains video file.

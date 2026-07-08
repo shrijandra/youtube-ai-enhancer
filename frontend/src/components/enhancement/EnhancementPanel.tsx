@@ -8,6 +8,7 @@ import { processMedia } from "@/services/processService";
 import { analyzeMedia } from "@/services/analysisService";
  
 import AIRecommendations from "@/components/analysis/AIRecommendations";
+import AudioAnalysisDashboard from "@/components/analysis/AudioAnalysisDashboard";
 
 interface EnhancementSettings {
   noiseReduction: number;
@@ -209,61 +210,9 @@ export default function EnhancementPanel({
     {/* ==========================
        Audio Analysis Dashboard
     =========================== */}
-    {analysis && (
-   <>    
-  <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-5 text-left">
-    <h3 className="mb-4 text-xl font-semibold">
-      📊 Audio Analysis
-    </h3>
-
-    <div className="grid gap-4 md:grid-cols-2">
-      <div className="rounded-lg bg-slate-950 p-4">
-        <p className="text-sm text-slate-400">Duration</p>
-        <p className="text-2xl font-bold">
-          {analysis.duration_minutes} min
-        </p>
-      </div>
-
-      <div className="rounded-lg bg-slate-950 p-4">
-        <p className="text-sm text-slate-400">Average Loudness</p>
-        <p className="text-2xl font-bold">
-          {analysis.avg_loudness_lufs} LUFS
-        </p>
-      </div>
-
-      <div className="rounded-lg bg-slate-950 p-4">
-        <p className="text-sm text-slate-400">True Peak</p>
-        <p className="text-2xl font-bold">
-          {analysis.true_peak_dbfs} dBFS
-        </p>
-      </div>
-
-      <div className="rounded-lg bg-slate-950 p-4">
-        <p className="text-sm text-slate-400">Dynamic Range</p>
-        <p className="text-2xl font-bold">
-          {analysis.dynamic_range_lra} LU
-        </p>
-      </div>
-
-      <div className="rounded-lg bg-slate-950 p-4">
-        <p className="text-sm text-slate-400">Pauses Detected</p>
-        <p className="text-2xl font-bold">
-          {analysis.pauses_detected}
-        </p>
-      </div>
-
-      <div className="rounded-lg bg-slate-950 p-4">
-        <p className="text-sm text-slate-400">YouTube Target</p>
-        <p className="text-2xl font-bold">
-          {analysis.youtube_target_lufs} LUFS
-        </p>
-      </div>
-    </div>
-  </div>
-    
-    {/* ==========================
-        AI Recommendations
-    =========================== */}
+  {analysis && (
+  <>
+    <AudioAnalysisDashboard analysis={analysis} />
     <AIRecommendations analysis={analysis} />
   </>
    )}

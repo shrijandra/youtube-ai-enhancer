@@ -12,15 +12,15 @@ export default function ParameterSlider({
   return (
     <div className="space-y-2">
 
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
 
-        <span className="font-medium">
+        <span className="text-sm font-medium text-slate-300">
 
           {label}
 
         </span>
 
-        <span className="text-blue-400">
+        <span className="text-sm font-semibold text-blue-400">
 
           {value}%
 
