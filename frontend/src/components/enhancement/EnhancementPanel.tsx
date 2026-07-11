@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { uploadFile } from "@/services/uploadService";
 import ParameterSlider from "./ParameterSlider";
 import PresetSelector from "./PresetSelector";
@@ -12,6 +12,7 @@ import AudioAnalysisDashboard from "@/components/analysis/AudioAnalysisDashboard
 import BeforeAfterComparison from "@/components/analysis/BeforeAfterComparison";
 
 import CreatorScoreCard from "@/components/CreatorScoreCard";
+
 
 interface EnhancementSettings {
   noiseReduction: number;
@@ -119,6 +120,7 @@ export default function EnhancementPanel({
  // const [analysis, setAnalysis] = useState<any>(null);
   const [beforeAnalysis, setBeforeAnalysis] = useState<any>(null);
   const [afterAnalysis, setAfterAnalysis] = useState<any>(null);
+  const [uploadedFilename, setUploadedFilename] = useState<string | null>(null);
 //Update function
   const updateSetting = (
     key: keyof EnhancementSettings,
@@ -132,43 +134,83 @@ export default function EnhancementPanel({
   const [uploading, setUploading] = useState(false);
   //const [uploadedFileId, setUploadedFileId] = useState("");
 
-  const handleEnhance = async () => {
+ const handleFileUpload = async (file: File) => {
   try {
     setUploading(true);
 
+    // Reset previous results when a new file is selected
+    setProcessedMediaUrl("");
+    setBeforeAnalysis(null);
+    setAfterAnalysis(null);
+    setAiSettingsApplied(false);
+
+    // Upload original file
     const uploadResult = await uploadFile(file);
 
-    console.log("Upload result:", uploadResult);
+    setUploadedFilename(uploadResult.filename);
 
-
-     // Analyze original uploaded media
+    // Analyze original file before enhancement
     const originalAnalysis = await analyzeMedia(uploadResult.filename);
-    console.log("Before Analysis:", originalAnalysis);
-    setBeforeAnalysis(originalAnalysis);
 
+    console.log("Before Analysis:", originalAnalysis);
+
+    setBeforeAnalysis(originalAnalysis);
+  } catch (error: any) {
+    console.error("Upload or analysis error:", error);
+
+    alert(
+      error?.response?.data?.detail ||
+        error?.message ||
+        "❌ Upload or original analysis failed."
+    );
+  } finally {
+    setUploading(false);
+  }
+};
+   useEffect(() => {
+    if (!file) return;
+
+    handleFileUpload(file);
+  }, [file]);
+
+const handleEnhance = async () => {
+  if (!uploadedFilename) {
+    alert("Please upload a file first.");
+    return;
+  }
+
+  try {
+    setUploading(true);
+
+    // Process uploaded audio/video using current slider settings
     const processResult = await processMedia(
-      uploadResult.filename,
+      uploadedFilename,
       settings
     );
 
-    console.log("Process result:", processResult);
+    console.log("Process Result:", processResult);
 
+    // Show processed media player and download link
     setProcessedMediaUrl(processResult.download_url);
 
-// Analyze enhanced output
-    const enhancedAnalysis = await analyzeMedia(processResult.output_file);
+    // Analyze enhanced output
+    const enhancedAnalysis = await analyzeMedia(
+      processResult.output_file
+    );
+
     console.log("After Analysis:", enhancedAnalysis);
+
     setAfterAnalysis(enhancedAnalysis);
 
-    alert(`✅ ${file.type.startsWith("video/") ? "Video" : "Audio"} enhanced successfully!`);
+    alert("✅ Media enhanced successfully!");
   } catch (error: any) {
-  console.error("Processing error:", error);
+    console.error("Processing error:", error);
 
-  alert(
-    error?.response?.data?.detail ||
-    error?.message ||
-    "❌ Processing failed."
-  );
+    alert(
+      error?.response?.data?.detail ||
+        error?.message ||
+        "❌ Processing failed."
+    );
   } finally {
     setUploading(false);
   }
@@ -182,6 +224,7 @@ const afterScore = afterAnalysis
   : 0;
 
 const scoreImprovement = afterScore - beforeScore;
+const [aiSettingsApplied, setAiSettingsApplied] = useState(false);
 
 const handleApplyAISettings = (recommendedSettings: {
   noiseReduction: number;
@@ -193,6 +236,8 @@ const handleApplyAISettings = (recommendedSettings: {
     ...previousSettings,
     ...recommendedSettings,
   }));
+  setAfterAnalysis(null);
+  setAiSettingsApplied(true);
 };
 
 //Render
@@ -243,7 +288,17 @@ const handleApplyAISettings = (recommendedSettings: {
         );
         }}
        />
+      {/* ================================
+      AI analyzes the original recording
+      ================================== */}
 
+      {beforeAnalysis && !afterAnalysis && (
+      <AIRecommendations
+          analysis={beforeAnalysis}
+          onApplySettings={handleApplyAISettings}
+          settingsApplied={aiSettingsApplied}
+         />
+      )}
       <EnhanceButton
         onClick={handleEnhance}
         uploading={uploading}
@@ -293,10 +348,7 @@ const handleApplyAISettings = (recommendedSettings: {
 
     <AudioAnalysisDashboard analysis={afterAnalysis} />
 
-    <AIRecommendations
-      analysis={afterAnalysis}
-      onApplySettings={handleApplyAISettings}
-    />
+    
   </>
  )}
 

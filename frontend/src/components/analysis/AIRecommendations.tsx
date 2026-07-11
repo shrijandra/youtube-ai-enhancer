@@ -2,6 +2,7 @@
 type Props = {
   analysis: any;
   onApplySettings: (settings: SuggestedSettings) => void;
+  settingsApplied: boolean;
 };
 
 type Priority = "high" | "medium" | "low";
@@ -235,20 +236,20 @@ const getOverallAssessment = (analysis: any) => {
     dynamicRange <= 8
   ) {
     return {
-      title: "Your audio is creator-ready",
+      title: "Your recording is ready for enhancement",
       description:
-        "The enhanced recording has strong loudness, safe peak levels, and balanced dynamics for YouTube narration.",
-      status: "Excellent",
+        "The original recording has been analyzed. Apply the suggested settings before enhancing your media.",
+      status: "Ready",
       style:
         "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
     };
   }
 
   return {
-    title: "Your audio has improved, with a few opportunities remaining",
+    title: "AI found opportunities to improve your recording",
     description:
-      "The recording is usable, but applying the recommended settings may improve consistency and clarity.",
-    status: "Needs Review",
+      "Apply the recommended settings to improve loudness, clarity, pacing, and overall consistency.",
+    status: "Recommendations Available",
     style: "border-amber-500/30 bg-amber-500/10 text-amber-200",
   };
 };
@@ -256,6 +257,7 @@ const getOverallAssessment = (analysis: any) => {
 export default function AIRecommendations({ 
   analysis,
   onApplySettings,
+  settingsApplied,
  }: Props) {
   const recommendations = generateRecommendations(analysis);
   const suggestedPreset = getSuggestedPreset(analysis);
@@ -271,7 +273,7 @@ export default function AIRecommendations({
           </h3>
 
           <p className="mt-1 text-sm text-slate-400">
-            Local AI analysis based on your enhanced audio metrics
+            Local AI analysis of your original recording
           </p>
         </div>
 
@@ -351,9 +353,13 @@ export default function AIRecommendations({
         <button
           type="button"
           onClick={() => onApplySettings(suggestedSettings)}
-          className="mt-4 w-full rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-slate-950"
+          className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-slate-950 ${
+            settingsApplied
+              ? "bg-emerald-600 hover:bg-emerald-500"
+              : "bg-violet-600 hover:bg-violet-500"
+          }`}
         >
-          Apply AI Settings
+          {settingsApplied ? "✓ AI Settings Applied" : "Apply AI Settings"}
         </button>
 
       </div>
