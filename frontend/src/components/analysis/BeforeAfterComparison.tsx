@@ -1,6 +1,9 @@
 type Props = {
   before: any;
   after: any;
+  beforeScore: number;
+  afterScore: number;
+  scoreImprovement: number;
 };
 
 function ReportRow({
@@ -38,6 +41,9 @@ function ReportRow({
 export default function BeforeAfterComparison({
   before,
   after,
+  beforeScore,
+  afterScore,
+  scoreImprovement,
 }: Props) {
   const loudnessImproved = (
     after.avg_loudness_lufs -
@@ -59,7 +65,38 @@ export default function BeforeAfterComparison({
       <h2 className="mb-6 text-2xl font-bold text-white">
         ✨ Enhancement Report
       </h2>
+      <div className="grid gap-4 rounded-xl border border-slate-700 bg-slate-950 p-4 md:grid-cols-2">
+  <div>
+    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      Original Recording
+    </p>
 
+    <p className="mt-2 text-sm text-slate-200">
+      Creator Score:{" "}
+      <span className="font-semibold text-white">
+        {beforeScore}/100
+      </span>
+    </p>
+  </div>
+
+  <div>
+    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      Improvement
+    </p>
+
+    <p className="mt-2 text-sm font-semibold text-emerald-400">
+      {scoreImprovement > 0
+        ? `⭐ Improved by ${scoreImprovement} points`
+        : scoreImprovement === 0
+          ? "No score change"
+          : `⚠ Decreased by ${Math.abs(scoreImprovement)} points`}
+    </p>
+
+    <p className="mt-1 text-xs text-slate-400">
+      Final score: {afterScore}/100
+    </p>
+  </div>
+</div>
       <div className="space-y-4">
 
         <ReportRow

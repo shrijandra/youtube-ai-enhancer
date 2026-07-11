@@ -10,6 +10,9 @@ import { analyzeMedia } from "@/services/analysisService";
 import AIRecommendations from "@/components/analysis/AIRecommendations";
 import AudioAnalysisDashboard from "@/components/analysis/AudioAnalysisDashboard";
 import BeforeAfterComparison from "@/components/analysis/BeforeAfterComparison";
+
+import CreatorScoreCard from "@/components/CreatorScoreCard";
+
 interface EnhancementSettings {
   noiseReduction: number;
   voiceClarity: number;
@@ -56,6 +59,50 @@ const presets = {
     echoRemoval: 20,
     loudness: 75,
   },
+};
+
+const calculateCreatorScore = (analysis: any) => {
+  let score = 40;
+
+  // Loudness: ideal for YouTube voice is around -16 to -14 LUFS
+  if (analysis.avg_loudness_lufs >= -16 && analysis.avg_loudness_lufs <= -14) {
+    score += 20;
+  } else if (
+    analysis.avg_loudness_lufs >= -18 &&
+    analysis.avg_loudness_lufs <= -12
+  ) {
+    score += 12;
+  } else {
+    score += 5;
+  }
+
+  // Peak safety
+  if (analysis.true_peak_dbfs <= -1.0) {
+    score += 15;
+  } else if (analysis.true_peak_dbfs <= -0.5) {
+    score += 8;
+  }
+
+  // Dynamic range
+  if (analysis.dynamic_range_lra >= 3 && analysis.dynamic_range_lra <= 6) {
+    score += 15;
+  } else if (
+    analysis.dynamic_range_lra >= 2 &&
+    analysis.dynamic_range_lra <= 8
+  ) {
+    score += 8;
+  }
+
+  // Pauses
+  if (analysis.pauses_count <= 25) {
+    score += 10;
+  } else if (analysis.pauses_count <= 45) {
+    score += 6;
+  } else if (analysis.pauses_count <= 65) {
+    score += 3;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(score)));
 };
 //Initialize the state:
 export default function EnhancementPanel({
@@ -126,7 +173,16 @@ export default function EnhancementPanel({
     setUploading(false);
   }
 };
-   
+ const beforeScore = beforeAnalysis
+  ? calculateCreatorScore(beforeAnalysis)
+  : 0;
+
+const afterScore = afterAnalysis
+  ? calculateCreatorScore(afterAnalysis)
+  : 0;
+
+const scoreImprovement = afterScore - beforeScore;
+
 //Render
   return (
     <div className="mt-8 rounded-xl border border-slate-700 bg-slate-950 p-6">
@@ -212,13 +268,22 @@ export default function EnhancementPanel({
     </a>
   </div>
   )}
+
+    
+    
     {/* ==========================
        Audio Analysis Dashboard
     =========================== */}
   {afterAnalysis && (
   <>
+    
+    <CreatorScoreCard score={calculateCreatorScore(afterAnalysis)} />
+
     <AudioAnalysisDashboard analysis={afterAnalysis} />
-    <AIRecommendations analysis={afterAnalysis} />
+
+    <AIRecommendations
+      analysis={afterAnalysis}
+    />
   </>
  )}
 
@@ -226,6 +291,10 @@ export default function EnhancementPanel({
   <BeforeAfterComparison
     before={beforeAnalysis}
     after={afterAnalysis}
+    
+    beforeScore={beforeScore}
+    afterScore={afterScore}
+    scoreImprovement={scoreImprovement}
   />
   )}
     </div>

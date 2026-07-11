@@ -2,7 +2,9 @@ type AIRecommendationsProps = {
   analysis: any;
 };
 
-export default function AIRecommendations({ analysis }: AIRecommendationsProps) {
+export default function AIRecommendations({ 
+  analysis, 
+ }: AIRecommendationsProps) {
   const recommendations: string[] = [];
 
   if (analysis.avg_loudness_lufs < -15) {
@@ -29,13 +31,13 @@ export default function AIRecommendations({ analysis }: AIRecommendationsProps) 
     recommendations.push("Pacing looks good.");
   }
 
-  const score =
+  /*const score =
     100 -
     Math.abs((analysis.avg_loudness_lufs ?? -14) + 14) * 5 -
     (analysis.clipping_warning ? 20 : 0) -
-    Math.max(0, 3.5 - (analysis.dynamic_range_lra ?? 3.5)) * 5;
+    Math.max(0, 3.5 - (analysis.dynamic_range_lra ?? 3.5)) * 5;  */
 
-  const finalScore = Math.max(0, Math.min(100, Math.round(score)));
+  //const finalScore = Math.max(0, Math.min(100, Math.round(score)));
 
   return (
     <div className="mt-6 rounded-2xl border border-indigo-700/60 bg-indigo-950/40 p-6 text-left shadow-lg">
@@ -43,13 +45,7 @@ export default function AIRecommendations({ analysis }: AIRecommendationsProps) 
         🤖 AI Recommendations
       </h3>
 
-      <div className="mb-5 rounded-xl border border-indigo-700/60 bg-slate-950 p-5">
-        <p className="text-sm text-slate-400">Creator Audio Score</p>
-        <p className="mt-2 text-4xl font-bold text-white">
-          {finalScore}
-          <span className="text-xl text-slate-400">/100</span>
-        </p>
-      </div>
+      
 
       <div className="space-y-3">
         {recommendations.map((item, index) => (
