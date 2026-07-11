@@ -183,6 +183,18 @@ const afterScore = afterAnalysis
 
 const scoreImprovement = afterScore - beforeScore;
 
+const handleApplyAISettings = (recommendedSettings: {
+  noiseReduction: number;
+  voiceClarity: number;
+  echoRemoval: number;
+  loudness: number;
+}) => {
+  setSettings((previousSettings) => ({
+    ...previousSettings,
+    ...recommendedSettings,
+  }));
+};
+
 //Render
   return (
     <div className="mt-8 rounded-xl border border-slate-700 bg-slate-950 p-6">
@@ -283,6 +295,7 @@ const scoreImprovement = afterScore - beforeScore;
 
     <AIRecommendations
       analysis={afterAnalysis}
+      onApplySettings={handleApplyAISettings}
     />
   </>
  )}
@@ -291,7 +304,7 @@ const scoreImprovement = afterScore - beforeScore;
   <BeforeAfterComparison
     before={beforeAnalysis}
     after={afterAnalysis}
-    
+
     beforeScore={beforeScore}
     afterScore={afterScore}
     scoreImprovement={scoreImprovement}

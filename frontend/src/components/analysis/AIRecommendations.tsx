@@ -1,5 +1,7 @@
+
 type Props = {
   analysis: any;
+  onApplySettings: (settings: SuggestedSettings) => void;
 };
 
 type Priority = "high" | "medium" | "low";
@@ -131,45 +133,92 @@ const generateRecommendations = (analysis: any): Recommendation[] => {
   return recommendations;
 };
 
-const getSuggestedPreset = (analysis: any) => {
+  const getSuggestedPreset = (analysis: any) => {
   const loudness = analysis?.avg_loudness_lufs ?? -30;
+  const pauses = analysis?.pauses_count ?? 0;
   const dynamicRange = analysis?.dynamic_range_lra ?? 0;
 
-  if (loudness < -18) {
+  // Presentation narration, tutorials, educational YouTube videos
+  if (pauses < 35 && dynamicRange <= 4) {
     return {
       name: "Voice Focus",
-      description: "Best for quiet narration that needs clarity and presence.",
-      icon: "🎙️",
+      description:
+        "Optimized for presentation narration, tutorials, and educational YouTube videos.",
+      icon: "🎤",
     };
   }
 
-  if (dynamicRange > 8) {
+  // Conversational podcast-style speech
+  if (dynamicRange > 5) {
     return {
       name: "Podcast",
       description:
-        "Best for balancing inconsistent speech levels and improving vocal presence.",
+        "Best for conversational speech while preserving natural vocal dynamics.",
       icon: "🎧",
+    };
+  }
+
+  // Quiet recordings that need more presence
+  if (loudness < -18) {
+    return {
+      name: "Studio",
+      description:
+        "Adds presence, clarity, and controlled loudness to quieter recordings.",
+      icon: "🎙️",
     };
   }
 
   return {
     name: "Balanced",
     description:
-      "Best for polished creator audio while preserving a natural voice.",
+      "Provides natural enhancement for general-purpose creator audio.",
     icon: "✨",
   };
 };
+
+
 
 const getSuggestedSettings = (analysis: any): SuggestedSettings => {
   const loudness = analysis?.avg_loudness_lufs ?? -30;
   const dynamicRange = analysis?.dynamic_range_lra ?? 0;
   const pauses = analysis?.pauses_count ?? 0;
 
+  // Presentation narration / Voice Focus
+  if (pauses < 35 && dynamicRange <= 4) {
+    return {
+      noiseReduction: 70,
+      voiceClarity: 90,
+      echoRemoval: 35,
+      loudness: 65,
+    };
+  }
+
+  // Podcast
+  if (dynamicRange > 5) {
+    return {
+      noiseReduction: 60,
+      voiceClarity: 75,
+      echoRemoval: 30,
+      loudness: 60,
+    };
+  }
+
+  // Quiet studio-style recording
+  if (loudness < -18) {
+    return {
+      noiseReduction: 65,
+      voiceClarity: 85,
+      echoRemoval: 40,
+      loudness: 80,
+    };
+  }
+
+  // Balanced
   return {
-    noiseReduction: 65,
-    voiceClarity: loudness < -18 ? 85 : 75,
-    echoRemoval: 40,
-    loudness: loudness < -18 ? 80 : loudness > -12 ? 45 : 65,
+    noiseReduction: 55,
+    voiceClarity: 70,
+    echoRemoval: 30,
+    loudness: 60,
   };
 };
 
@@ -204,7 +253,10 @@ const getOverallAssessment = (analysis: any) => {
   };
 };
 
-export default function AIRecommendations({ analysis }: Props) {
+export default function AIRecommendations({ 
+  analysis,
+  onApplySettings,
+ }: Props) {
   const recommendations = generateRecommendations(analysis);
   const suggestedPreset = getSuggestedPreset(analysis);
   const suggestedSettings = getSuggestedSettings(analysis);
@@ -296,6 +348,14 @@ export default function AIRecommendations({ analysis }: Props) {
             </p>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={() => onApplySettings(suggestedSettings)}
+          className="mt-4 w-full rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-slate-950"
+        >
+          Apply AI Settings
+        </button>
+
       </div>
 
       {/* Suggested settings */}
