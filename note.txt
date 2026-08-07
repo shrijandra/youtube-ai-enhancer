@@ -5,7 +5,7 @@ Create virtual environment
 
 python -m venv venv
 
-Activate
+For Backend Activate
 
 Windows
 
@@ -19,6 +19,10 @@ run
 uvicorn app.main:app --reload
 
 http://localhost:8000
+
+for front end
+frontend>npm run dev
+http://localhost:5173
 
 {
   "message":"AI Audio Enhancer API"
