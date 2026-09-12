@@ -25,9 +25,13 @@ def build_audio_filters(settings):
     # Remove unnecessary high-end hiss
     filters.append("lowpass=f=13500")
 
-    # Noise reduction
+    # Noise reduction. nr is the actual strength knob (0.01-97);
+    # nf is only the assumed noise floor, so scaling nf instead
+    # leaves the slider doing nothing. Capped at 24 dB because
+    # afftdn starts adding watery "musical noise" past that.
     if noise > 0:
-        filters.append("afftdn=nf=-28:tn=1")
+        noise_reduction_db = round(6 + ((noise / 100) * 18), 2)
+        filters.append(f"afftdn=nr={noise_reduction_db}:nf=-28:tn=1")
 
     # Reduce muddy voice area
     filters.append("equalizer=f=250:t=q:w=1:g=-2")
@@ -46,9 +50,23 @@ def build_audio_filters(settings):
             f"g={round(clarity_gain / presence_divisor, 2)}"
         )
 
-    # Echo/harshness approximation
+    # Sibilance / harshness.
+    #
+    # deesser needs care. Its intensity defaults to 0, so a bare
+    # "deesser" does nothing at all. Worse, i is very nonlinear:
+    # measured on a 7 kHz sibilance probe, i<=0.4 is inert and
+    # the entire usable response lives between 0.5 and 1.0
+    # (-1 dB to -14 dB). So the slider maps onto 0.45-0.95
+    # rather than 0-1, or its bottom half would be dead.
+    #
+    # Do not pass m. Despite the name, m=1.0 disables the effect
+    # outright - it behaves as an inverse threshold.
+    #
+    # Note this is de-essing, not echo removal. ffmpeg has no
+    # real dereverb, so the slider's label overpromises.
     if echo > 0:
-        filters.append("deesser")
+        deess_intensity = round(0.45 + ((echo / 100) * 0.5), 3)
+        filters.append(f"deesser=i={deess_intensity}")
 
     # Voice compression: makes speech more even and professional
     filters.append(
@@ -58,8 +76,11 @@ def build_audio_filters(settings):
     # Soft limiter to prevent clipping
     filters.append("alimiter=limit=0.95")
 
-    # Loudness normalization
-    target_loudness = -16 if loudness >= 70 else -18
+    # Loudness normalization. Continuous across the slider
+    # instead of two discrete steps, and it now actually reaches
+    # -14 LUFS - the YouTube target the analysis dashboard
+    # reports but the old -16/-18 split could never hit.
+    target_loudness = round(-20 + ((loudness / 100) * 6), 1)
     filters.append(f"loudnorm=I={target_loudness}:TP=-1.5:LRA=11")
 
     return ",".join(filters)
