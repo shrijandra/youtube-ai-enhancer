@@ -11,6 +11,12 @@ def build_audio_filters(settings):
     echo = clamp(settings.echoRemoval)
     loudness = clamp(settings.loudness)
 
+    # V3.2 - when click suppression is on, stop lifting the band
+    # the clicks live in. Backing off the 5 kHz presence boost is
+    # the only change that survives the loudnorm at the end of
+    # this chain; adding a transient compressor here does not.
+    click_safe = settings.clickNoiseSuppression
+
     filters = []
 
     # Remove low rumble / AC / desk vibration
@@ -29,8 +35,16 @@ def build_audio_filters(settings):
     # Improve speech clarity / presence
     if clarity > 0:
         clarity_gain = round((clarity / 100) * 5, 2)
+
+        # 5 kHz is where click transients peak, so back that band
+        # off rather than lifting it as hard as 3 kHz
+        presence_divisor = 4 if click_safe else 2
+
         filters.append(f"equalizer=f=3000:t=q:w=1:g={clarity_gain}")
-        filters.append(f"equalizer=f=5000:t=q:w=1:g={round(clarity_gain / 2, 2)}")
+        filters.append(
+            f"equalizer=f=5000:t=q:w=1:"
+            f"g={round(clarity_gain / presence_divisor, 2)}"
+        )
 
     # Echo/harshness approximation
     if echo > 0:

@@ -67,7 +67,7 @@ def process_file(request: ProcessRequest):
         )
 
     print("\n" + "=" * 70)
-    print("🚀 AI Creator Studio V2 - Processing Started")
+    print("🚀 AI Creator Studio V3.1 - Processing Started")
     print(f"Input File : {request.filename}")
     print(f"Settings   : {request.settings.model_dump()}")
     print("=" * 70)

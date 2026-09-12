@@ -5,6 +5,9 @@ export type EnhancementSettings = {
   voiceClarity: number;
   echoRemoval: number;
   loudness: number;
+
+  // V3.2 - keyboard/mouse click suppression
+  clickNoiseSuppression?: boolean;
 };
 
 export async function processMedia(

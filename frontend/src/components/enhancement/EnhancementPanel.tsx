@@ -19,6 +19,9 @@ interface EnhancementSettings {
   voiceClarity: number;
   echoRemoval: number;
   loudness: number;
+
+  // V3.2 - strips keyboard/mouse clicks before enhancement
+  clickNoiseSuppression: boolean;
 }
 
 interface Props {
@@ -109,9 +112,10 @@ const calculateCreatorScore = (analysis: any) => {
 export default function EnhancementPanel({
   file,
 }: Props) {
-  const [settings, setSettings] = useState<EnhancementSettings>(
-    presets.Balanced
-  );
+  const [settings, setSettings] = useState<EnhancementSettings>({
+    ...presets.Balanced,
+    clickNoiseSuppression: true,
+  });
 
   const [preset, setPreset] = useState("Balanced");
   
@@ -277,15 +281,45 @@ const handleApplyAISettings = (recommendedSettings: {
         onChange={(v) => updateSetting("loudness", v)}
       />
 
+      <div className="mt-6" />
+
+      <label className="flex cursor-pointer items-start gap-3">
+        <input
+          type="checkbox"
+          className="mt-1"
+          checked={settings.clickNoiseSuppression}
+          onChange={(e) =>
+            setSettings((prev) => ({
+              ...prev,
+              clickNoiseSuppression: e.target.checked,
+            }))
+          }
+        />
+
+        <span>
+          <span className="font-medium">
+            ⌨️ Suppress keyboard &amp; mouse clicks
+          </span>
+
+          <span className="block text-sm text-slate-400">
+            Removes click transients before enhancement, so they
+            aren&apos;t amplified by clarity and loudness.
+          </span>
+        </span>
+      </label>
+
       <div className="mt-8" />
 
       <PresetSelector
         preset={preset}
         onChange={(newPreset) => {
           setPreset(newPreset);
-          setSettings(
-            presets[newPreset as keyof typeof presets]
-        );
+          setSettings((prev) => ({
+            ...presets[newPreset as keyof typeof presets],
+            // Presets only carry the four sliders - don't let
+            // switching preset silently re-enable click boosting
+            clickNoiseSuppression: prev.clickNoiseSuppression,
+          }));
         }}
        />
       {/* ================================
